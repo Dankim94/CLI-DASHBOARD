@@ -1,18 +1,18 @@
 from xmlrpc import client
 
-from rich import print
-from rich.console import Console
-from rich.theme import Theme
+from rich import print #import rich library 
+from rich.console import Console #import console from rich library 
+from rich.theme import Theme #import theme from rich library 
 import asyncio 
-from open_meteo import OpenMeteo 
+from open_meteo import OpenMeteo #import OpenMeteo to get the local weather
 from open_meteo.models import DailyParameters, HourlyParameters
 
 custom_theme = Theme({
-    "hot": "orange", 
+    "hot": " bold red", 
     "sunny" : "yellow",
-    "cloudy" : "grey",
-    "cold" : "blue"
-})
+    "cloudy" : "black",
+    "cold" : " cyan" 
+}) #only use primary and secondary colors for customing theme
 console = Console(theme = custom_theme)
 
 async def main():
