@@ -5,35 +5,44 @@ from rich.console import Console #import console from rich library
 from rich.theme import Theme #import theme from rich library 
 import asyncio 
 from open_meteo import OpenMeteo #import OpenMeteo to get the local weather
-from open_meteo.models import DailyParameters, HourlyParameters
+from open_meteo.models import DailyParameters, HourlyParameters #import previsions daily and hourly parameters
 
 custom_theme = Theme({
     "hot": " bold red", 
     "sunny" : "yellow",
     "cloudy" : "black",
-    "cold" : " cyan" 
+    "cold" : " cyan",
+    "rain" : "bold blue"
 }) #only use primary and secondary colors for customing theme
-console = Console(theme = custom_theme)
+console = Console(theme = custom_theme) #use to add a theme at the terminal
 
 async def main():
     async with OpenMeteo() as client:
         forecast = await client.forecast(
             latitude=45.4339,
-            longitude=4.39,
+            longitude=4.39, #Saint-Etienne location
             current_weather=True,
-            #daily=[DailyParameters.SUNRISE, DailyParameters.SUNSET],
-            #hourly=[HourlyParameters.TEMPERATURE_2M, HourlyParameters.RELATIVE_HUMIDITY_2M],
+            #daily=True,
+            hourly=[HourlyParameters.PRECIPITATION,HourlyParameters.SNOW_DEPTH],#useful for rain and snow 
         )
-        if forecast.current_weather.temperature >30 :
+        if forecast.current_weather.temperature >=30 :
             console.print(":hot: It's a hot day!",style="hot") # temperature is above 30°C
-        elif forecast.current_weather.temperature > 20 : 
+        elif forecast.current_weather.temperature >= 20 : 
             console.print(":sunny: It's a warm day!",style="sunny") #temperature is above 20°C
-        elif forecast.current_weather.temperature >10 : 
+        elif forecast.current_weather.temperature >=10 : 
             console.print(":cloud: It's a cool day! ",style="cloudy")#temperature is above 10°C
         else : 
             console.print(":cold: It's a cold day!",style="cold")# temperature is under 10°C
         #print(forecast) # print the result of the request with API
-
+        if sum(forecast.hourly.precipitation)> 5.0:
+            console.print(":umbrella: Bring your umbrella today !", style="rain")#condition with rain
+        else : 
+            console.print("No rain today ! :smile:")
+        if sum(forecast.hourly.snow_depth) > 0.02 :
+            console.print(":snow: Bring a scarf and boots !", style="cold") #condition with snow 
+        else : 
+            console.print("No snow today ! :smile:")
+        
 if __name__ == "__main__":
     asyncio.run(main())
 
