@@ -12,7 +12,8 @@ custom_theme = Theme({
     "sunny" : "yellow",
     "cloudy" : "black",
     "cold" : " cyan",
-    "rain" : "bold blue"
+    "rain" : "bold blue",
+    "snow" : "white"
 }) #only use primary and secondary colors for customing theme
 console = Console(theme = custom_theme) #use to add a theme at the terminal
 
@@ -25,7 +26,11 @@ async def main():
             #daily=True,
             hourly=[HourlyParameters.PRECIPITATION,HourlyParameters.SNOW_DEPTH],#useful for rain and snow 
         )
-        if forecast.current_weather.temperature >=30 :
+        if sum(forecast.hourly.precipitation)> 5.0:
+            console.print(":umbrella: Bring your umbrella today !", style="rain")#condition with rain
+        elif sum(forecast.hourly.snow_depth) > 0.02 :
+            console.print(":snow: Bring a scarf and boots !", style="snow") #condition with snow 
+        elif forecast.current_weather.temperature >=30 :
             console.print(":hot: It's a hot day!",style="hot") # temperature is above 30°C
         elif forecast.current_weather.temperature >= 20 : 
             console.print(":sunny: It's a warm day!",style="sunny") #temperature is above 20°C
@@ -34,14 +39,6 @@ async def main():
         else : 
             console.print(":cold: It's a cold day!",style="cold")# temperature is under 10°C
         #print(forecast) # print the result of the request with API
-        if sum(forecast.hourly.precipitation)> 5.0:
-            console.print(":umbrella: Bring your umbrella today !", style="rain")#condition with rain
-        else : 
-            console.print("No rain today ! :smile:")
-        if sum(forecast.hourly.snow_depth) > 0.02 :
-            console.print(":snow: Bring a scarf and boots !", style="cold") #condition with snow 
-        else : 
-            console.print("No snow today ! :smile:")
         
 if __name__ == "__main__":
     asyncio.run(main())
