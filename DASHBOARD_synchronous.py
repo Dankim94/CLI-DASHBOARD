@@ -1,13 +1,14 @@
-import requests
-import openmeteo_requests
-import requests_cache
-from retry_requests import retry
+import requests #library to get the requests from open-meteo API
+import openmeteo_requests #library to answer the requests
+import requests_cache 
+from retry_requests import retry #library to retry requests
+from datetime import datetime
 
-def get_location_coordinates_json(city_name):
+def get_location_coordinates_json(city_name): # function which allow to have the coordinates from the city entered 
     """
     Fetch latitude and longitude for a given city using Open-Meteo's Geocoding API in JSON format.
     """
-    url = "https://geocoding-api.open-meteo.com/v1/search"
+    url = "https://geocoding-api.open-meteo.com/v1/search" #link to research on the OPENMETEO API 
     params = {
         "name": city_name,
         "count": 1,       # Limiter à 1 résultat
@@ -22,11 +23,11 @@ def get_location_coordinates_json(city_name):
         data = response.json()
 
         # Vérifier si on a des résultats
-        if "results" not in data or not data["results"]:
+        if "results" not in data or not data["results"]: #Handling places which doesn't exists
             print(f"No location found for '{city_name}'.")
             return None
 
-        # Premier résultat
+        # looking for the first result 
         location = data["results"][0]
         name = location["name"]
         country = location.get("country", "Unknown")
@@ -38,18 +39,9 @@ def get_location_coordinates_json(city_name):
 
         return lat, lon
 
-    except requests.exceptions.RequestException as e:
+    except requests.exceptions.RequestException as e: #Handling errors 
         print(f"Error fetching location: {e}")
         return None
-
-# Exemple d'utilisation
-if __name__ == "__main__":
-    city = input("Enter city name: ").strip()
-    coords = get_location_coordinates_json(city)
-    if coords:
-        print(f"Coordinates: {coords}")
-
-
 
 def get_coordinates(city: str):
     """
@@ -102,11 +94,11 @@ def get_current_weather_by_city(city: str):
         return {
             "city": city_name,
             "country": country,
-            "temperature": round(current.Variables(0).Value(),2),
+            "temperature": round(current.Variables(0).Value(),1),
             "wind_speed" : round(current.Variables(1).Value(),2),
             "winddirection": round(current.Variables(2).Value(),2),
             "weathercode": current.Variables(3).Value(),
-            "time": current.Time()
+            "time": datetime.now() # get the current time 
         }
 
     except Exception as e:
@@ -115,12 +107,13 @@ def get_current_weather_by_city(city: str):
 
 
 if __name__ == "__main__":
-    city = input("Entrer la ville :")
+    city = input("Entrer city name :")
     weather = get_current_weather_by_city(city)
     if weather:
-        print(f"Weather in {weather['city']}, {weather['country']}:")
-        print(f"Temperature: {weather['temperature']}°C")
-        print(f"Wind speed: {weather['wind_speed']} km/h")
-        print(f"Wind direction: {weather['winddirection']}°")
-        print(f"Weather code: {weather['weathercode']}")
-        print(f"Time: {weather['time']}")
+        print(f"Weather in {weather['city']}, {weather['country']}:") # Getting city and country
+        print(f"Temperature: {weather['temperature']}°C") # Temperature in Celsius
+        print(f"Wind speed: {weather['wind_speed']} km/h") # Wind speed 
+        print(f"Wind direction: {weather['winddirection']}°")# Direction of the wind 
+        print(f"Weather code: {weather['weathercode']}") # Don't know 
+        print(f"Time: {weather['time']}") # Meteo in current time 
+
